@@ -50,7 +50,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.8
+  m_Radius: 0.69
 --- !u!50 &6074914666852492886
 Rigidbody2D:
   serializedVersion: 4
@@ -90,6 +90,8 @@ MonoBehaviour:
   animator: {fileID: 935405391194571182}
   shootTriggerName: Shoot
   dieTriggerName: Die
+  isDeadBoolName: IsDead
+  timeDelay: 2
 --- !u!1 &6074914667923687845
 GameObject:
   m_ObjectHideFlags: 0
@@ -114,7 +116,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6074914667923687845}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.303, y: -0.582, z: 0}
+  m_LocalPosition: {x: -0.303, y: -0.793, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 6074914666852492885}
@@ -146,7 +148,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6074914668134414949}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.22, y: -1.06, z: 0}
+  m_LocalPosition: {x: -0.22, y: -1.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 6074914666852492885}

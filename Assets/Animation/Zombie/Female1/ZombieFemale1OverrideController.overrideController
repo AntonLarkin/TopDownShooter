@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ZombieFemale1OverrideController
+  m_Controller: {fileID: 9100000, guid: e81b71438043796439c4cfedcdb68b96, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: bad4f61d7d6009d46a0975375a6d3f80, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 49720a512f62d544c80bf363a67ad14d, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: cf26fcda90177ac418c06188b451040c, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 311efcf172ca56349a8e7fb66026b47a, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 09a53a2f3d268bc4696c18eaa08f8483, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 9baaf7088a187dd43b5d00f613066a53, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 2508d23e5db737a4a8581830d46f2e7b, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: fa4fba1fde1dcc5449f5f09ce9063521, type: 2}

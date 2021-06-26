@@ -65,10 +65,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 6739212287737837312, guid: 5f60a41eb44e2fc4cbbe11dac2d4082e, type: 3}
   bulletSpawnPoint: {fileID: 8924432330933120431}
-  currentHealPoints: 20
+  currentHealPoints: 50
   animator: {fileID: 5493121443344886220}
   shootTriggerName: Shoot
   dieTriggerName: Die
+  isDeadBoolName: IsDead
   shootDelay: 0.3
 --- !u!58 &8924432329866003039
 CircleCollider2D:
