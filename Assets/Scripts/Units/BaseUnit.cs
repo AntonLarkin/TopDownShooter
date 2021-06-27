@@ -1,22 +1,63 @@
 using UnityEngine;
+using System;
 
 public abstract class BaseUnit : MonoBehaviour
 {
     #region Variables
 
-    [SerializeField] protected float currentHealPoints;
+    [SerializeField] public float currentHealPoints;
+    [SerializeField] public float maxHealPoints;
 
     [Header("Animation")]
     [SerializeField] protected Animator animator;
     [SerializeField] protected string shootTriggerName;
     [SerializeField] protected string dieTriggerName;
     [SerializeField] protected string isDeadBoolName;
+    [SerializeField] protected string liveTriggerName;
 
+    [SerializeField] protected Transform unitTransform;
+    [SerializeField] private UiManager uiManager;
 
     protected bool isDead;
 
     #endregion
 
+
+    #region Events
+
+    public event Action<float,float> OnChanged;
+    public event Action OnDied;
+
+    #endregion
+
+
+    #region Unity lifecycle
+
+    private void Awake()
+    {
+        currentHealPoints=maxHealPoints;
+    }
+
+    #endregion
+
+    #region Public methods
+
+    public virtual void ApplyDamage(float damage)
+    {
+        currentHealPoints -= damage;
+
+        
+        OnChanged?.Invoke(currentHealPoints,maxHealPoints);
+
+        if (currentHealPoints <= 0)
+        {
+            UnitDie();
+
+            OnDied?.Invoke();
+        }
+    }
+
+    #endregion
 
     #region Private methods
 
@@ -30,23 +71,29 @@ public abstract class BaseUnit : MonoBehaviour
         }
     }
 
-    protected virtual void ApplyDamage(float damage)
-    {
-        currentHealPoints -= damage;
-
-        if (currentHealPoints <= 0)
-        {
-            UnitDie();
-        }
-    }
-
     protected virtual void UnitDie()
     {
         animator.SetTrigger(dieTriggerName);
         animator.SetBool(isDeadBoolName, true);
         isDead = true;
-
+        
         GetComponent<CircleCollider2D>().enabled = false;
+    }
+
+    protected virtual void UnitLive()
+    {
+        animator.SetTrigger(liveTriggerName);
+        animator.SetBool(isDeadBoolName, false);
+        isDead = false;
+
+        GetComponent<CircleCollider2D>().enabled = true;
+
+        ReloadHealPoints();
+    }
+    
+    protected void ReloadHealPoints()
+    {
+        currentHealPoints = maxHealPoints;
     }
 
     protected void PlayShootingAnimation()
@@ -56,12 +103,11 @@ public abstract class BaseUnit : MonoBehaviour
 
     #endregion
 
+    #region Event handlers
 
-    #region Public methods
-
-    public void GetDamage(float damage)
+    private void UImanager_OnReloadButton()
     {
-        ApplyDamage(damage);
+        
     }
 
     #endregion

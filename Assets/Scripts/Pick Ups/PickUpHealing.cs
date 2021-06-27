@@ -17,8 +17,15 @@ public class PickUpHealing : MonoBehaviour
 
         if(player != null)
         {
-            player.Heal(healPoints);
-            Destroy(gameObject);
+            if (player.currentHealPoints < player.maxHealPoints)
+            {
+                player.ApplyDamage(-healPoints);
+                if (player.currentHealPoints + healPoints >= player.maxHealPoints)
+                {
+                    player.currentHealPoints = player.maxHealPoints;
+                }
+                Destroy(gameObject);
+            }
         }
     }
 

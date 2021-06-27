@@ -53,10 +53,11 @@ public class ExplosiveBarrel : MonoBehaviour
 
         foreach(Collider2D baseUnit in unitsInRadius)
         {
-            if (baseUnit.GetComponent<BaseUnit>())
+            var unit = baseUnit.GetComponent<BaseUnit>();
+
+            if (unit!=null)
             {
-                var unit = baseUnit.GetComponent<BaseUnit>();
-                unit.GetDamage(damage);
+                unit.ApplyDamage(damage);
             }
         }
     }

@@ -47,7 +47,7 @@ public class Enemy : LongRangeUnit
 
     private void LookAtPlayer()
     {
-        transform.up = -playerTransform.transform.position + transform.position;
+        unitTransform.up = -playerTransform.transform.position + transform.position;
     }
 
     private IEnumerator OnTimeOutShoot()

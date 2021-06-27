@@ -9,6 +9,8 @@ public class Player : LongRangeUnit
 
     private float currentShootDelay;
 
+    private Vector3 startPosition;
+
     #endregion
 
 
@@ -21,6 +23,21 @@ public class Player : LongRangeUnit
 
     #region Unity lifecycle
 
+    private void Awake()
+    {
+        startPosition = transform.position;
+    }
+
+    private void OnEnable()
+    {
+        OnDied += OnDied_ReloadPlayer;
+    }
+
+    private void OnDisable()
+    {
+        OnDied -= OnDied_ReloadPlayer;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         InitiateDamage(collision);
@@ -30,6 +47,23 @@ public class Player : LongRangeUnit
     {
         Shoot();
     }
+
+    #endregion
+
+
+    #region Public methods
+
+    //public override void ApplyDamage(float damage)
+    //{
+    //    base.ApplyDamage(damage);
+
+    //    if (currentHealPoints <= 0)
+    //    {
+    //        UnitDie();
+
+    //        //StartCoroutine(OnGameOverReload());
+    //    }
+    //}
 
     #endregion
 
@@ -48,46 +82,40 @@ public class Player : LongRangeUnit
         currentShootDelay -= Time.deltaTime;
     }
 
-    protected override void ApplyDamage(float damage) 
-    {
-        currentHealPoints -= damage;
-
-        if (currentHealPoints <= 0)
-        {
-            UnitDie();
-
-            StartCoroutine(OnGameOverReload());
-        }
-    }
-
     protected override void UnitDie()
     {
         base.UnitDie();
 
         GetComponent<PlayerMovement>().enabled = false;
 
-        StartCoroutine(OnGameOverReload());
+        //StartCoroutine(OnGameOverReload());
     }
 
-    private IEnumerator OnGameOverReload()
-    {
-        yield return new WaitForSeconds(1f);
-        SceneLoader.ReloadScene();
-    }
+    //private IEnumerator OnGameOverReload()
+    //{
+    //    yield return new WaitForSeconds(1f);
+    //    SceneLoader.ReloadScene();
+    //}
 
     #endregion
 
 
-    #region Public methods
+    #region Event handlers
 
-    public void Heal(float healPoints)
+    private void OnDied_ReloadPlayer()
     {
-        currentHealPoints += healPoints;
-    }
+        transform.position = startPosition;
+        GetComponent<PlayerMovement>().enabled = true;
+        UnitLive();
 
-    public void TakeDamage(float damage)
-    {
-        ApplyDamage(damage);
+        var enemies = FindObjectsOfType<BaseUnit>();    //лучше не придумал
+        foreach(BaseUnit enemy in enemies)
+        {
+            if (enemy.GetComponent<Zombie>())
+            {
+                enemy.GetComponent<Zombie>().Reload();
+            }
+        }
     }
 
     #endregion

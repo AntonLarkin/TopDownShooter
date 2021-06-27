@@ -7,6 +7,7 @@ public class ZombieMovement : MonoBehaviour
     #region Variables
 
     [SerializeField] private float speed;
+    [SerializeField] private Transform zombieTransform;
 
     [Header("Animation")]
     [SerializeField] private Animator animator;
@@ -25,18 +26,14 @@ public class ZombieMovement : MonoBehaviour
 
     private void Awake()
     {
-        cachedTransform = transform;
+        cachedTransform = zombieTransform;
+        rb = GetComponent<Rigidbody2D>();
     }
 
     private void OnDisable()
     {
-        rb.velocity = Vector2.zero;     //если зомби становится больше 3 ОДНОГО типа, то выдает ошибку (?)
+        rb.velocity = Vector2.zero; 
         SetMoveAnimation(0f);
-    }
-
-    private void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
     }
 
     private void Update()

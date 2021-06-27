@@ -22,17 +22,23 @@ public class Zombie : BaseUnit
     [SerializeField] private Transform[] patrolPoints;
     [SerializeField] private bool isPatrolActive;
 
+    [SerializeField] private GameObject pickUpPrefab;
+    [Range(1, 100)]
+    [SerializeField] private int pickUpCreationRate;
+
+    [SerializeField] private LayerMask obstacleMask;
+
     private Player player;
     private Transform playerTransform;
     private ZombieMovement zombieMovement;
 
     private Transform cachedTransform;
+
     private Vector3 startPosition;
     private Vector3 patrolPosition;
     private int currentPatrolPoint;
 
-    private float minDistance = 0.1f;
-    private bool isZombieDead;
+    private float minDistance = 0.5f;
 
     private float lastAttackTime;
 
@@ -62,7 +68,18 @@ public class Zombie : BaseUnit
         }
 
         SetState(isPatrolActive ? State.Patrol : State.Idle);
+
     }
+
+    //private void OnEnable()
+    //{
+    //    OnDied += OnDied_ReloadZombies;
+    //}
+
+    //private void OnDisable()
+    //{
+    //    OnDied -= OnDied_ReloadZombies;
+    //}
 
     private void Start()
     {
@@ -94,6 +111,24 @@ public class Zombie : BaseUnit
     #endregion
 
 
+    public void Reload()
+    {
+        transform.position = startPosition;
+
+        if (patrolPoints != null && patrolPoints.Length > 0)
+        {
+            isPatrolActive = true;
+            currentPatrolPoint = 0;
+        }
+        else
+        {
+            isPatrolActive = false;
+            currentPatrolPoint = -1;
+        }
+
+        SetState(isPatrolActive ? State.Patrol : State.Idle);
+    }
+
     #region Private methods
 
     private void OnDrawGizmos()
@@ -113,33 +148,38 @@ public class Zombie : BaseUnit
         var playerPos = playerTransform.position;
         var distance = Vector3.Distance(playerPos, cachedTransform.position);
 
-        if (!isZombieDead)
+        if (distance < attackRadius)
         {
-            if (distance < attackRadius)
-            {
-                SetState(State.Attack);
-            }
-            else if (distance < moveRadius)
-            {
-                SetState(State.Chase);
-            }
-            else if (distance > chaseRadius)
-            {
-                if (currentState == State.Chase)
-                {
-                    SetState(State.Return);
-                }
-            }
-            else if (currentHealPoints <= 0)
-            {
-                SetState(State.Die);
-            }
+            SetState(State.Attack);
+        }
+        else if (distance < moveRadius)
+        {
+            //var direction = playerPos - transform.position;
+            //Debug.DrawRay(transform.position, direction, Color.red);
 
-            if (currentState == State.Return && Vector3.Distance(transform.position, startPosition) <= minDistance)
+            //var ray = Physics2D.Raycast(transform.position, direction, Mathf.Infinity, obstacleMask);     ÍÅ ÐÀÁÎÒÀÅÒ!!!!
+
+            //if (ray.collider != null)
+            //{
+            //    return;
+            //}
+
+            SetState(State.Chase);
+
+        }
+        else if (distance > chaseRadius)
+        {
+            if (currentState == State.Chase)
             {
-                SetState(isPatrolActive ? State.Patrol : State.Idle);
+                SetState(State.Return);
             }
         }
+
+        if (currentState == State.Return && Vector3.Distance(transform.position, startPosition) <= minDistance)
+        {
+            SetState(isPatrolActive ? State.Patrol : State.Idle);
+        }
+
     }
 
     private void SetState(State newState)
@@ -178,6 +218,7 @@ public class Zombie : BaseUnit
                     SetActiveMovement(true);
                     patrolPosition = patrolPoints[currentPatrolPoint].position;
                     zombieMovement.SetDestination(patrolPosition);
+
                     break;
                 }
         }
@@ -196,19 +237,15 @@ public class Zombie : BaseUnit
         {
             Attack();
         }
-        if(currentState == State.Chase)
+        else if (currentState == State.Chase)
         {
             Chase();
         }
-        if(currentState == State.Return)
+        else if (currentState == State.Return)
         {
             Return();
         }
-        if(currentState == State.Die)
-        {
-            Die();
-        }
-        if(currentState == State.Patrol)
+        else if (currentState == State.Patrol)
         {
             Patrol();
             patrolPosition = patrolPoints[currentPatrolPoint].position;
@@ -220,14 +257,13 @@ public class Zombie : BaseUnit
     {
         base.UnitDie();
 
-        isZombieDead = true;
+        SetState(State.Die);
         SetActiveMovement(false);
-        GetComponent<CircleCollider2D>().enabled = false;
-    }
 
-    private void Die()
-    {
-        UnitDie();
+        if (NeedCreatePickUp())
+        {
+            Instantiate(pickUpPrefab, transform.position, Quaternion.identity);
+        }
     }
 
     private void Attack()
@@ -236,9 +272,11 @@ public class Zombie : BaseUnit
 
         if (Time.time - lastAttackTime > attackRate)
         {
-            player.TakeDamage(zombieDamage);
+            player.ApplyDamage(zombieDamage);
+
             animator.SetTrigger(shootTriggerName);
             lastAttackTime = Time.time;
+
         }
     }
 
@@ -275,6 +313,27 @@ public class Zombie : BaseUnit
 
         patrolPosition = patrolPoints[currentPatrolPoint].position;
     }
+
+    private bool NeedCreatePickUp()
+    {
+        var randomNumber = Random.Range(1, 101);
+        return pickUpCreationRate >= randomNumber;
+    }
+
+    #endregion
+
+
+    #region Event handlers
+
+    //private void OnDied_ReloadZombies()
+    //{
+    //    if (player.IsDead)
+    //    {
+    //        SetState(State.Patrol);
+    //        UnitLive();
+    //        transform.position = startPosition;
+    //    }
+    //}
 
     #endregion
 }

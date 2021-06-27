@@ -6,4 +6,9 @@ public static class SceneLoader
     {
         SceneManager.LoadScene(0);
     }
+
+    public static void LoadNextScene()
+    {
+        SceneManager.LoadScene(1);
+    }
 }

@@ -16,7 +16,7 @@ public class LongRangeUnit : BaseUnit
 
     protected void CreateBullet()
     {
-        Instantiate(bulletPrefab, bulletSpawnPoint.position, transform.rotation);
+        Instantiate(bulletPrefab, bulletSpawnPoint.position, unitTransform.rotation);
     }
 
     #endregion

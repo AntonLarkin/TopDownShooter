@@ -5,13 +5,13 @@ public class PlayerMovement : MonoBehaviour
     #region Variables
 
     [SerializeField] private float speed;
+    [SerializeField] private Transform playerTransform;
 
     [Header("Animation")]
     [SerializeField] private Animator animator;
     [SerializeField] private string moveSpeedName;
 
     private Rigidbody2D rb;
-    private Player player;
 
     #endregion
 
@@ -47,9 +47,9 @@ public class PlayerMovement : MonoBehaviour
     private void RotatePlayer()
     {
         var mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        var directionInvert = Vector3.ClampMagnitude((mousePosition - transform.position),1f);
+        var directionInvert = Vector3.ClampMagnitude((mousePosition - playerTransform.position),1f);
 
-        transform.up = -(Vector2)directionInvert;
+        playerTransform.up = -(Vector2)directionInvert;
     }
 
     #endregion
