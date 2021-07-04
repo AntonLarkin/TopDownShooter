@@ -1,4 +1,5 @@
 using UnityEngine;
+using Pathfinding;
 
 public class Zombie : BaseUnit
 {
@@ -17,6 +18,7 @@ public class Zombie : BaseUnit
     [SerializeField] private float moveRadius;
     [SerializeField] private float attackRadius;
     [SerializeField] private float chaseRadius;
+    [SerializeField] private float noticeRadius;
     [SerializeField] private float zombieDamage;
     [SerializeField] private float attackRate;
     [SerializeField] private Transform[] patrolPoints;
@@ -30,15 +32,20 @@ public class Zombie : BaseUnit
 
     private Player player;
     private Transform playerTransform;
-    private ZombieMovement zombieMovement;
+    //private ZombieMovement zombieMovement;
+    private AIPath aIPath;
+    private AIDestinationSetter aIDestinationSetter;
 
     private Transform cachedTransform;
 
-    private Vector3 startPosition;
-    private Vector3 patrolPosition;
+    private Transform startPositionTransform;
+    private Transform patrolPosition;
     private int currentPatrolPoint;
 
-    private float minDistance = 0.5f;
+    [Range(30, 360)]
+    [SerializeField] private float visionAngle;
+
+    private float minDistance;
 
     private float lastAttackTime;
 
@@ -52,9 +59,15 @@ public class Zombie : BaseUnit
     private void Awake()
     {
         cachedTransform = transform;
-        startPosition = cachedTransform.position;
+        startPositionTransform = cachedTransform;
 
-        zombieMovement = GetComponent<ZombieMovement>();
+        player = FindObjectOfType<Player>();
+        playerTransform = player.transform;
+
+        aIPath = GetComponent<AIPath>();
+        aIDestinationSetter = GetComponent<AIDestinationSetter>();
+
+        minDistance = aIPath.endReachedDistance;
 
         if (patrolPoints != null && patrolPoints.Length > 0)
         {
@@ -71,21 +84,16 @@ public class Zombie : BaseUnit
 
     }
 
-    //private void OnEnable()
-    //{
-    //    OnDied += OnDied_ReloadZombies;
-    //}
-
-    //private void OnDisable()
-    //{
-    //    OnDied -= OnDied_ReloadZombies;
-    //}
-
-    private void Start()
+    private void OnEnable()
     {
-        player = FindObjectOfType<Player>();
-        playerTransform = player.transform;
+        player.OnDied += Player_OnDied;
     }
+
+    private void OnDisable()
+    {
+        player.OnDied -= Player_OnDied;
+    }
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -99,40 +107,32 @@ public class Zombie : BaseUnit
 
     private void Update()
     {
-        if (player.IsDead || currentState == State.Die)
+        if (currentState == State.Die)
         {
             return;
         }
 
         CheckState();
         UpdateCurrentState();
+        
     }
 
     #endregion
 
 
-    public void Reload()
-    {
-        transform.position = startPosition;
-
-        if (patrolPoints != null && patrolPoints.Length > 0)
-        {
-            isPatrolActive = true;
-            currentPatrolPoint = 0;
-        }
-        else
-        {
-            isPatrolActive = false;
-            currentPatrolPoint = -1;
-        }
-
-        SetState(isPatrolActive ? State.Patrol : State.Idle);
-    }
-
     #region Private methods
 
     private void OnDrawGizmos()
     {
+        var direction = -unitTransform.up;
+        var rotate = Quaternion.AngleAxis(visionAngle / 2, Vector3.forward);
+        var rotate2 = Quaternion.AngleAxis(-visionAngle / 2, Vector3.forward);
+
+        var leftRay = rotate * direction;
+        var rightRay = rotate2 * direction;
+        Gizmos.DrawRay(unitTransform.position, leftRay * moveRadius);
+        Gizmos.DrawRay(unitTransform.position, rightRay * moveRadius);
+
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, moveRadius);
 
@@ -141,6 +141,9 @@ public class Zombie : BaseUnit
 
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, chaseRadius);
+
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(transform.position, noticeRadius);
     }
 
     private void CheckState()
@@ -148,20 +151,29 @@ public class Zombie : BaseUnit
         var playerPos = playerTransform.position;
         var distance = Vector3.Distance(playerPos, cachedTransform.position);
 
-        if (distance < attackRadius)
+        if (distance < attackRadius && IsPlayerFound() && !player.IsDead)
         {
             SetState(State.Attack);
         }
-        else if (distance < moveRadius)
+        else if ((distance < moveRadius || distance < noticeRadius) && distance > attackRadius && !player.IsDead && (IsPlayerFound() || distance < noticeRadius))
         {
             //var direction = playerPos - transform.position;
             //Debug.DrawRay(transform.position, direction, Color.red);
 
-            //var ray = Physics2D.Raycast(transform.position, direction, Mathf.Infinity, obstacleMask);     ÍÅ ÐÀÁÎÒÀÅÒ!!!!
+            //var ray = Physics2D.Raycast(transform.position, direction, Mathf.Infinity, obstacleMask);
 
-            //if (ray.collider != null)
+            //if (ray.collider !=null)
             //{
-            //    return;
+            //    if (patrolPoints.Length > 0)
+            //    {
+            //        SetState(State.Patrol);
+            //        return;
+            //    }
+            //    else
+            //    {
+            //        SetState(State.Return);
+            //        return;
+            //    }
             //}
 
             SetState(State.Chase);
@@ -175,7 +187,7 @@ public class Zombie : BaseUnit
             }
         }
 
-        if (currentState == State.Return && Vector3.Distance(transform.position, startPosition) <= minDistance)
+        if (currentState == State.Return && Vector3.Distance(transform.position, startPositionTransform.position) <= minDistance)
         {
             SetState(isPatrolActive ? State.Patrol : State.Idle);
         }
@@ -200,24 +212,24 @@ public class Zombie : BaseUnit
             case State.Chase:
                 {
                     SetActiveMovement(true);
-                    zombieMovement.SetDestination(playerTransform.position);
+                    SetTarget(playerTransform);
 
                     break;
                 }
             case State.Return:
                 {
-                    if (currentState == State.Chase)
+                    if (currentState == State.Chase || currentState == State.Attack)
                     {
                         SetActiveMovement(true);
-                        zombieMovement.SetDestination(startPosition);
+                        SetTarget(startPositionTransform);
                     }
                     break;
                 }
             case State.Patrol:
                 {
                     SetActiveMovement(true);
-                    patrolPosition = patrolPoints[currentPatrolPoint].position;
-                    zombieMovement.SetDestination(patrolPosition);
+                    patrolPosition = patrolPoints[currentPatrolPoint];
+                    SetTarget(patrolPosition);
 
                     break;
                 }
@@ -228,7 +240,14 @@ public class Zombie : BaseUnit
 
     private void SetActiveMovement(bool isActive)
     {
-        zombieMovement.enabled = isActive;
+        aIPath.enabled = isActive;
+
+        animator.SetFloat(moveSpeedName, isActive ? aIPath.velocity.magnitude : 0);
+    }
+
+    private void SetTarget(Transform target)
+    {
+        aIDestinationSetter.target = target;
     }
 
     private void UpdateCurrentState()
@@ -240,16 +259,19 @@ public class Zombie : BaseUnit
         else if (currentState == State.Chase)
         {
             Chase();
+            Move();
         }
         else if (currentState == State.Return)
         {
             Return();
+            Move();
         }
         else if (currentState == State.Patrol)
         {
             Patrol();
-            patrolPosition = patrolPoints[currentPatrolPoint].position;
-            zombieMovement.SetDestination(patrolPosition);
+            Move();
+            patrolPosition = patrolPoints[currentPatrolPoint];
+            SetTarget(patrolPosition);
         }
     }
 
@@ -268,7 +290,7 @@ public class Zombie : BaseUnit
 
     private void Attack()
     {
-        zombieMovement.enabled = false;
+        aIPath.enabled = false;
 
         if (Time.time - lastAttackTime > attackRate)
         {
@@ -282,12 +304,12 @@ public class Zombie : BaseUnit
 
     private void Chase()
     {
-        zombieMovement.SetDestination(playerTransform.position);
+        SetTarget(playerTransform);
     }
 
     private void Return()
     {
-        if (Vector3.Distance(cachedTransform.position, startPosition) <= minDistance)
+        if (Vector3.Distance(cachedTransform.position, startPositionTransform.position) <= minDistance)
         {
             SetState(State.Idle);
         }
@@ -295,11 +317,18 @@ public class Zombie : BaseUnit
 
     private void Patrol()
     {
-        if (Vector3.Distance(cachedTransform.position, patrolPosition) <= minDistance)
+        if (Vector3.Distance(cachedTransform.position, patrolPosition.position) <= minDistance)
         {
             SetNewPatrolPoint();
-            zombieMovement.SetDestination(patrolPosition);
+            SetTarget(patrolPosition);
+            Move();
         }
+    }
+
+    private void Move()
+    {
+        animator.SetFloat(moveSpeedName, aIPath.velocity.magnitude);
+
     }
 
     private void SetNewPatrolPoint()
@@ -311,7 +340,7 @@ public class Zombie : BaseUnit
             currentPatrolPoint = 0;
         }
 
-        patrolPosition = patrolPoints[currentPatrolPoint].position;
+        patrolPosition = patrolPoints[currentPatrolPoint];
     }
 
     private bool NeedCreatePickUp()
@@ -320,20 +349,57 @@ public class Zombie : BaseUnit
         return pickUpCreationRate >= randomNumber;
     }
 
+    private bool IsPlayerFound()
+    {
+        var directionToPlayer = player.transform.position - cachedTransform.position;
+        var halfAngleVision = Vector3.Angle(directionToPlayer, -unitTransform.up);
+
+        if(halfAngleVision > visionAngle / 2)
+        {
+            return false;
+        }
+
+        RaycastHit2D rHit = Physics2D.Raycast(cachedTransform.position, directionToPlayer, moveRadius,obstacleMask);
+        if (rHit.collider != null)
+        {
+            return false;
+        }
+
+        Debug.DrawRay(transform.position, directionToPlayer * moveRadius, Color.magenta);
+        return true;
+    }
+
     #endregion
 
 
     #region Event handlers
 
-    //private void OnDied_ReloadZombies()
-    //{
-    //    if (player.IsDead)
-    //    {
-    //        SetState(State.Patrol);
-    //        UnitLive();
-    //        transform.position = startPosition;
-    //    }
-    //}
+    private void Player_OnDied()
+    {
+        if (currentState == State.Die)
+        {
+            UnitLive();
+        }
+
+        ReloadHealPoints();
+
+        if (patrolPoints != null && patrolPoints.Length > 0)
+        {
+            isPatrolActive = true;
+            currentPatrolPoint = 0;
+
+        }
+        else
+        {
+            isPatrolActive = false;
+            currentPatrolPoint = -1;
+            SetTarget(startPositionTransform);
+        }
+
+        SetState(isPatrolActive ? State.Patrol : State.Return);
+
+
+    }
 
     #endregion
 }

@@ -41,7 +41,8 @@ public class CharacterUI : MonoBehaviour
         }
         if (currentHp <= 0)
         {
-            gameObject.GetComponentInChildren<Canvas>().enabled = false;
+            image.fillAmount = 0;
+            gameObject.GetComponentInChildren<Image>().enabled = false;
         }
     }
 
@@ -49,10 +50,11 @@ public class CharacterUI : MonoBehaviour
     {
         if (currentHp == maxHp)
         {
-            gameObject.GetComponentInChildren<Canvas>().enabled = true;
+            gameObject.GetComponentInChildren<Image>().enabled = true;
 
             image.fillAmount = 1;
         }
+
     }
 
     #endregion

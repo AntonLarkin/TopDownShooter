@@ -343,7 +343,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19be161ad774aca46a47abea06305a7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boss: {fileID: 4139969139855723348}
+  conditions: []
 --- !u!50 &4521157549730168211
 Rigidbody2D:
   serializedVersion: 4
@@ -387,7 +387,7 @@ MonoBehaviour:
   unitTransform: {fileID: 4913400865670101024}
   bulletPrefab: {fileID: 6185630850461323564, guid: c1306ab39d493664985c4723c48bd571, type: 3}
   bulletSpawnPoint: {fileID: 4521157548666425953}
-  timeDelay: 2
+  timeDelay: 1.3
 --- !u!1 &5479885953837240610
 GameObject:
   m_ObjectHideFlags: 0

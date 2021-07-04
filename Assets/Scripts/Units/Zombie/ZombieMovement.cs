@@ -52,6 +52,11 @@ public class ZombieMovement : MonoBehaviour
         destinationPoint = position;
     }
 
+    public void ReturnZombie(Vector3 startPosition)
+    {
+        destinationPoint = startPosition;
+    }
+
     #endregion
 
 

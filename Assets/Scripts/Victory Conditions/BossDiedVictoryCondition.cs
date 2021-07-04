@@ -1,27 +1,27 @@
 using System.Collections;
+
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-public class Victory : MonoBehaviour
+public class BossDiedVictoryCondition : VictoryCondition
 {
     #region Variables
 
     [SerializeField] private BaseUnit boss;
-
-    private float bossHp;
 
     #endregion
 
 
     #region Unity lifecycle
 
-    private void Update()
+    private void OnEnable()
     {
-        if (boss.currentHealPoints <= 0)
-        {
-            StartCoroutine(OnVictoryLoadNextScene());
-        }
+        boss.OnDied += Boss_OnDied;
+    }
+
+    private void OnDisable()
+    {
+        boss.OnDied -= Boss_OnDied;
     }
 
     #endregion
@@ -33,6 +33,16 @@ public class Victory : MonoBehaviour
     {
         yield return new WaitForSeconds(1.5f);
         SceneLoader.LoadNextScene();
+    }
+
+    #endregion
+
+
+    #region Event handlers
+
+    private void Boss_OnDied()
+    {
+        InvokeOnCompliteCondition();
     }
 
     #endregion

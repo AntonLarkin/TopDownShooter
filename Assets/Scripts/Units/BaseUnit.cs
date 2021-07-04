@@ -14,9 +14,9 @@ public abstract class BaseUnit : MonoBehaviour
     [SerializeField] protected string dieTriggerName;
     [SerializeField] protected string isDeadBoolName;
     [SerializeField] protected string liveTriggerName;
+    [SerializeField] protected string moveSpeedName;
 
     [SerializeField] protected Transform unitTransform;
-    [SerializeField] private UiManager uiManager;
 
     protected bool isDead;
 
@@ -40,6 +40,7 @@ public abstract class BaseUnit : MonoBehaviour
 
     #endregion
 
+
     #region Public methods
 
     public virtual void ApplyDamage(float damage)
@@ -58,6 +59,7 @@ public abstract class BaseUnit : MonoBehaviour
     }
 
     #endregion
+
 
     #region Private methods
 
@@ -87,7 +89,6 @@ public abstract class BaseUnit : MonoBehaviour
         isDead = false;
 
         GetComponent<CircleCollider2D>().enabled = true;
-
         ReloadHealPoints();
     }
     
@@ -103,6 +104,7 @@ public abstract class BaseUnit : MonoBehaviour
 
     #endregion
 
+
     #region Event handlers
 
     private void UImanager_OnReloadButton()
@@ -111,5 +113,4 @@ public abstract class BaseUnit : MonoBehaviour
     }
 
     #endregion
-
 }

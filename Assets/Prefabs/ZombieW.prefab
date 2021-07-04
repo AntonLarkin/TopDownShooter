@@ -115,7 +115,10 @@ GameObject:
   - component: {fileID: 285915572485442438}
   - component: {fileID: 285915572485442437}
   - component: {fileID: 285915572485442436}
-  m_Layer: 0
+  - component: {fileID: 1641217809431485697}
+  - component: {fileID: 8785158524859025392}
+  - component: {fileID: 4922111143170135706}
+  m_Layer: 8
   m_Name: ZombieW
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -145,7 +148,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 285915572485442435}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89ce198a54b3a9a49aebf083fe51cb7b, type: 3}
   m_Name: 
@@ -173,19 +176,24 @@ MonoBehaviour:
   dieTriggerName: Die
   isDeadBoolName: IsDead
   liveTriggerName: Live
+  moveSpeedName: MoveSpeed
   unitTransform: {fileID: 6035941812459027842}
   moveRadius: 7
   attackRadius: 1.7
   chaseRadius: 15
+  noticeRadius: 3.5
   zombieDamage: 10
   attackRate: 1
-  patrolPoints: []
+  patrolPoints:
+  - {fileID: 0}
+  - {fileID: 0}
   isPatrolActive: 0
   pickUpPrefab: {fileID: 7807166968666625377, guid: 8cf3a98aa75726342a3787095745906c, type: 3}
-  pickUpCreationRate: 60
+  pickUpCreationRate: 25
   obstacleMask:
     serializedVersion: 2
     m_Bits: 1024
+  visionAngle: 60
 --- !u!50 &285915572485442437
 Rigidbody2D:
   serializedVersion: 4
@@ -223,6 +231,84 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.8
+--- !u!114 &1641217809431485697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 285915572485442435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 1
+  target: {fileID: 0}
+--- !u!114 &8785158524859025392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 285915572485442435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 1
+  drawGizmos: 1
+  detailedGizmos: 0
+  startEndModifier:
+    addPoints: 0
+    exactStartPoint: 3
+    exactEndPoint: 3
+    useRaycasting: 0
+    mask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    useGraphRaycasting: 0
+  traversableTags: -1
+  tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  graphMask:
+    value: -1
+--- !u!114 &4922111143170135706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 285915572485442435}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6eb1402c17e84a9282a7f0f62eb584f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 2
+  radius: 0.71
+  height: 2
+  repathRate: 1
+  canSearch: 1
+  canMove: 1
+  maxSpeed: 3
+  gravity: {x: NaN, y: NaN, z: NaN}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  centerOffsetCompatibility: NaN
+  orientation: 1
+  enableRotation: 1
+  targetCompatibility: {fileID: 0}
+  maxAcceleration: -2.5
+  rotationSpeed: 360
+  slowdownDistance: 0.6
+  pickNextWaypointDist: 1
+  endReachedDistance: 1
+  alwaysDrawGizmos: 0
+  slowWhenNotFacingTarget: 1
+  whenCloseToDestination: 0
+  constrainInsideGraph: 0
 --- !u!1 &1727604795979302779
 GameObject:
   m_ObjectHideFlags: 0
@@ -265,7 +351,7 @@ GameObject:
   - component: {fileID: 2496753593572488671}
   - component: {fileID: 1816833404996867891}
   - component: {fileID: 635397965344260189}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: BarProgress
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -340,7 +426,7 @@ GameObject:
   - component: {fileID: 8570205476092992843}
   - component: {fileID: 3268171952964380442}
   - component: {fileID: 7842899994559954985}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: BarBack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -418,7 +504,7 @@ GameObject:
   - component: {fileID: 321457439793866435}
   - component: {fileID: 8984218718928442773}
   - component: {fileID: 4231562019491023190}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
