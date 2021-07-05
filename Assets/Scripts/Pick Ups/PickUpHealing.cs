@@ -1,4 +1,5 @@
 using UnityEngine;
+using Lean.Pool;
 
 public class PickUpHealing : MonoBehaviour
 {
@@ -24,7 +25,7 @@ public class PickUpHealing : MonoBehaviour
                 {
                     player.currentHealPoints = player.maxHealPoints;
                 }
-                Destroy(gameObject);
+                LeanPool.Despawn(gameObject);
             }
         }
     }

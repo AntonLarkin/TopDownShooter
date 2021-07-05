@@ -1,6 +1,7 @@
 using UnityEngine;
+using Lean.Pool;
 
-public class Bullet : MonoBehaviour
+public class Bullet : MonoBehaviour,IPoolable
 {
     #region Variables
 
@@ -10,11 +11,6 @@ public class Bullet : MonoBehaviour
 
 
     #region Unity lifecycle
-
-    private void Awake()
-    {
-        GetComponent<Rigidbody2D>().velocity=-transform.up*speed;
-    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -33,7 +29,22 @@ public class Bullet : MonoBehaviour
 
     private void DestroyObject()
     {
-        Destroy(gameObject);
+        LeanPool.Despawn(gameObject);
+    }
+
+    #endregion
+
+
+    #region Public methods
+
+    public void OnSpawn()
+    {
+        GetComponent<Rigidbody2D>().velocity = -transform.up * speed;
+    }
+
+    public void OnDespawn()
+    {
+
     }
 
     #endregion

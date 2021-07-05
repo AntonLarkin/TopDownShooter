@@ -381,8 +381,8 @@ MonoBehaviour:
   attackRate: 1
   patrolPoints: []
   isPatrolActive: 0
-  pickUpPrefab: {fileID: 7807166968666625377, guid: 8cf3a98aa75726342a3787095745906c, type: 3}
-  pickUpCreationRate: 10
+  pickUpPrefab: {fileID: 1709798852511277670, guid: 8cc1a99a3ea1cd04eb0181bdd5fd813d, type: 3}
+  pickUpCreationRate: 60
   obstacleMask:
     serializedVersion: 2
     m_Bits: 1024

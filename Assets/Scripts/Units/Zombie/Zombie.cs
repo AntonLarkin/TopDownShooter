@@ -1,5 +1,6 @@
 using UnityEngine;
 using Pathfinding;
+using Lean.Pool;
 
 public class Zombie : BaseUnit
 {
@@ -284,7 +285,7 @@ public class Zombie : BaseUnit
 
         if (NeedCreatePickUp())
         {
-            Instantiate(pickUpPrefab, transform.position, Quaternion.identity);
+            LeanPool.Spawn(pickUpPrefab, transform.position, Quaternion.identity);
         }
     }
 

@@ -102,9 +102,11 @@ MonoBehaviour:
   dieTriggerName: Die
   isDeadBoolName: IsDead
   liveTriggerName: Live
+  moveSpeedName: 
   unitTransform: {fileID: 5739977312610233367}
   bulletPrefab: {fileID: 6739212287737837312, guid: 5f60a41eb44e2fc4cbbe11dac2d4082e, type: 3}
   bulletSpawnPoint: {fileID: 8924432330933120431}
+  maxAmmo: 25
   shootDelay: 0.3
 --- !u!58 &8924432329866003039
 CircleCollider2D:

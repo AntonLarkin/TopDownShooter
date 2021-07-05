@@ -55,14 +55,18 @@ public class Player : LongRangeUnit
 
     private void Shoot()
     {
-        if (Input.GetButton("Fire1") && currentShootDelay <= 0 && !isDead)
+        if (currentAmmo > 0)
         {
-            currentShootDelay = shootDelay;
-            CreateBullet();
-            PlayShootingAnimation();
+            if (Input.GetButton("Fire1") && currentShootDelay <= 0 && !isDead)
+            {
+                currentShootDelay = shootDelay;
+                CreateBullet();
+                PlayShootingAnimation();
+            }
+
+            currentShootDelay -= Time.deltaTime;
         }
 
-        currentShootDelay -= Time.deltaTime;
     }
 
     protected override void UnitDie()
