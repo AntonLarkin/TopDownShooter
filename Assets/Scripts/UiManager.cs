@@ -35,6 +35,11 @@ public class UiManager : MonoBehaviour
         player.OnDied -= Player_OnDied;
     }
 
+    private void LateUpdate()
+    {
+        
+    }
+
     #endregion
 
     #region Private methods

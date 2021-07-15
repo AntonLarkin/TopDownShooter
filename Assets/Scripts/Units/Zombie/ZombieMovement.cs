@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Pathfinding;
 using UnityEngine;
 
 public class ZombieMovement : MonoBehaviour
@@ -17,10 +18,19 @@ public class ZombieMovement : MonoBehaviour
     private Rigidbody2D rb;
     private Vector3 direction;
 
-    private Vector3 destinationPoint;
+    private AIPath aIPath;
+    private AIDestinationSetter aIDestinationSetter;
+
+    private float minDistance;
 
     #endregion
 
+
+    #region Properties
+
+    public float MinDistance => minDistance;
+
+    #endregion
 
     #region Unity lifecycle
 
@@ -28,18 +38,23 @@ public class ZombieMovement : MonoBehaviour
     {
         cachedTransform = zombieTransform;
         rb = GetComponent<Rigidbody2D>();
+
+        aIPath = GetComponent<AIPath>();
+        aIDestinationSetter = GetComponent<AIDestinationSetter>();
+
+        minDistance = aIPath.endReachedDistance;
+        aIPath.maxSpeed = speed;
     }
 
     private void OnDisable()
     {
-        rb.velocity = Vector2.zero; 
+        rb.velocity = Vector2.zero;
         SetMoveAnimation(0f);
     }
 
     private void Update()
     {
         RotateZombie();
-        MoveZombie();
     }
 
     #endregion
@@ -47,26 +62,22 @@ public class ZombieMovement : MonoBehaviour
 
     #region Public methods
 
-    public void SetDestination(Vector3 position)
+    public void StartMoving(bool isActive)
     {
-        destinationPoint = position;
+        aIPath.enabled = isActive;
+
+        animator.SetFloat(moveSpeedName, isActive ? aIPath.velocity.magnitude : 0);
     }
 
-    public void ReturnZombie(Vector3 startPosition)
+    public void SetTargetPosition(Transform target)
     {
-        destinationPoint = startPosition;
+        aIDestinationSetter.target = target;
     }
 
     #endregion
 
 
     #region Private methods
-
-    private void MoveZombie()
-    {
-        rb.velocity = direction * speed;
-        SetMoveAnimation(direction.magnitude);
-    }
 
     private void SetMoveAnimation(float magnitude)
     {
@@ -75,10 +86,11 @@ public class ZombieMovement : MonoBehaviour
 
     private void RotateZombie()
     {
-        direction = Vector3.ClampMagnitude((destinationPoint - cachedTransform.position),1f);
+        direction = Vector3.ClampMagnitude((aIDestinationSetter.target.position - cachedTransform.position), 1f);
 
         cachedTransform.up = -(Vector2)direction;
     }
+
 
     #endregion
 }
